@@ -81,11 +81,9 @@
                         units = tokens.filter(unit => { return unit.policy === this.policyId});
 
                         console.log('Units loaded: ' + units.length);
-                        if (units.length == 0) {
-                            this.items.forEach(unit => {
-                                unit.count = 0;
-                            });
-                        }
+                        this.items.forEach(unit => {
+                            unit.count = 0;
+                        });
 
                         all_items = [];
                         units.forEach(unit => {
