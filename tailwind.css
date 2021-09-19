@@ -784,6 +784,14 @@ video {
   padding-bottom: 0.5rem;
 }
 
+.pr-2 {
+  padding-right: 0.5rem;
+}
+
+.pr-4 {
+  padding-right: 1rem;
+}
+
 .pr-6 {
   padding-right: 1.5rem;
 }
@@ -794,6 +802,10 @@ video {
 
 .pb-8 {
   padding-bottom: 2rem;
+}
+
+.pl-1 {
+  padding-left: 0.25rem;
 }
 
 .pl-4 {
