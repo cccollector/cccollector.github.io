@@ -49,7 +49,7 @@
             <span class="pr-2 font-thin">Items:</span>
             <div class="pr-4 font-bold" x-text="numOfItems"></div>
             <span class="pr-2 font-thin">Value:</span>
-            <div class="pr-4 font-bold" x-text="totalValue"></div>
+            <div class="pr-4 font-bold" x-text="numberWithCommas(totalValue)"></div>
         </div>
 
 
@@ -123,6 +123,7 @@
                     .then((data) => {
                         tokens = data.tokens;
                         units = tokens.filter(unit => { return unit.policy === this.policyId });
+                        units = units.filter(unit => {return unit.metadata.contents != ''});
                         this.numOfUnits = units.length;
                         this.numOfItems = 0;
                         this.totalValue = 0;
@@ -171,6 +172,9 @@
                     }).catch(function (err) {
                         console.log(err);
                     });
+            },
+            numberWithCommas(x) {
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             },
             items: [
                 { 'count': 0, 'id': 94, 'name': "Charles's samurai", 'rarity': "0.7%", "units": [] },
