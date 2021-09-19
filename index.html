@@ -28,7 +28,7 @@
         <div class="flex flex-wrap -mx-2 pb-8">
             <template x-for="item in items" :key="item.id">
                 <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 h-full font-light">
-                    <div class="flex justify-between items-center bg-white rounded-lg shadow-md m-2 border-l-4 border-white hover:shadow-2xl hover:border-pink-500 cursor-pointer relative">
+                    <div class="flex justify-between items-center bg-white rounded-lg shadow-md m-2 border-l-8 border-white hover:shadow-2xl hover:border-pink-500 cursor-pointer relative">
                         <div class="p-4 pr-6 leading-normal w-5/6">
                             <div class="font-medium text-xl truncate" x-text="item.name"></div>
                             <div class="truncate text-xs text-gray-500 font-semibold pb-2 tracking-widest">
@@ -44,10 +44,7 @@
 
     <div class="flex flex-col text-center text-xs text-gray-500">
         <div>
-            Tombo:
-        </div>
-        <div class="truncate md:overflow-clip">
-            addr1q96kt2lpxek0jdqlhu7a5k0wjwvnzf0p45srvzujzkhlcf9trj4g7lfafe7vt7378tvezxgr0xarcr8y9rl9a9p4cjcsenhjtn
+            Tombo#8428
         </div>
     </div>
 </body>
@@ -84,6 +81,11 @@
                         units = tokens.filter(unit => { return unit.policy === this.policyId});
 
                         console.log('Units loaded: ' + units.length);
+                        if (units.length == 0) {
+                            this.items.forEach(unit => {
+                                unit.count = 0;
+                            });
+                        }
 
                         all_items = [];
                         units.forEach(unit => {

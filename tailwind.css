@@ -731,8 +731,8 @@ video {
   border-width: 1px;
 }
 
-.border-l-4 {
-  border-left-width: 4px;
+.border-l-8 {
+  border-left-width: 8px;
 }
 
 .border-white {
@@ -933,10 +933,6 @@ video {
 @media (min-width: 768px) {
   .md\:w-1\/2 {
     width: 50%;
-  }
-
-  .md\:overflow-clip {
-    text-overflow: clip;
   }
 }
 
