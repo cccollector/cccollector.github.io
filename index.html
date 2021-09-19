@@ -90,6 +90,8 @@
                         tokens = data.tokens;
                         units = tokens.filter(unit => { return unit.policy === this.policyId});
                         this.numOfUnits = units.length;
+                        this.numOfItems = 0;
+                        this.totalValue = 0;
      
                         this.items.forEach(unit => {
                             unit.count = 0;
