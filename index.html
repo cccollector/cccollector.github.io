@@ -60,7 +60,7 @@
             title: 'CardanoCity Collector',
             intro: 'Type the <code class="text-md text-pink-600">address</code> of your Cardano wallet:',
             policyId: 'a5425bd7bc4182325188af2340415827a73f845846c165d9e14c5aed',
-            walletSearch: '',
+            walletSearch:  localStorage.getItem("address") || '',
             numOfUnits: 0,
             isLoading: false,
             isError: false,
@@ -104,6 +104,7 @@
                         }
                         this.isLoading = false;
                         this.isError = false;
+                        localStorage.setItem('address', this.walletSearch);
                 }).catch(function(err) {
                     console.log(err);
                 });
