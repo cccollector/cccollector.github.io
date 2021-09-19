@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardanoCity - Collector</title>
+    <link rel="stylesheet" href="tailwind.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="h-full min-h-screen bg-gray-200">
+    <div class="h-full text-gray-800 p-4 lg:p-8" x-data="alpineInstance()">
+        <h1 class="mt-0 mb-3 font-light text-3xl" x-text="title">
+            <!-- title text -->
+        </h1>
+        <p class="text-xl text-gray-600 font-light mb-4" x-html="intro">
+            <!-- intro text -->
+        </p>
+
+        <div class="flex items-center">
+            <input type="text" name="walletSearch" x-model="walletSearch" class="flex w-2/3 bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 appearance-none leading-normal">
+            <button type="submit" @click="fetchUnits()" class="flex bg-pink-600 text-white font-bold py-2 px-4 rounded hover:bg-pink-700 ml-2" :class="[ isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-pink-700' ]" :disabled="isLoading">
+                Search
+            </button>
+            <template x-if="isError">
+                <div class="pl-4 text-xs font-thin text-red-600" x-text="error"></div>
+            </template>
+        </div>
+
+        <div class="flex flex-wrap -mx-2 pb-8">
+            <!-- begin: card -->
+            <template x-for="item in items" :key="item.id">
+                    <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 h-full font-light">
+                        <div class="flex justify-between items-center bg-white rounded-lg shadow-md m-2 border-l-4 border-white hover:shadow-2xl hover:border-pink-500 cursor-pointer relative">
+                            <div class="p-4 pr-6 leading-normal">
+                                <div class="font-medium text-xl truncate" x-text="item.name"></div>
+                                <div class="truncate text-xs text-gray-500 font-semibold pb-2 tracking-widest">
+                                    <span x-text="item.rarity"></span>%
+                                </div>
+                            </div>
+                            <div class="pr-6 text-2xl font-semibold" x-text="item.count"></div>
+                        </div>
+                    </div>
+                </template>
+            <!-- end: card -->
+        </div>
+    </div>
+
+    <div class="text-center text-xs text-gray-500">
+        Tombo: addr1q96kt2lpxek0jdqlhu7a5k0wjwvnzf0p45srvzujzkhlcf9trj4g7lfafe7vt7378tvezxgr0xarcr8y9rl9a9p4cjcsenhjtn (Cardano)
+    </div>
+</body>
+
+</html>
+
+<script>
+    function alpineInstance() {
+        return {
+            title: 'CardanoCity Collector',
+            intro: 'Type the <code class="text-md text-pink-600">address</code> of your Cardano wallet:',
+            policyId: 'a5425bd7bc4182325188af2340415827a73f845846c165d9e14c5aed',
+            walletSearch: '',
+            numOfUnits: 0,
+            isLoading: false,
+            isError: false,
+            error: '',
+            fetchUnits() {
+                this.isLoading = true;
+                fetch(`https://api.pool.pm/wallet/${this.walletSearch}`)
+                    .then(response => {
+                        if (!response.ok){
+                            this.isLoading = false;
+                            this.error = `Error: ${response.status} - ${response.statusText}`
+                            this.isError = true;
+                            this.items.forEach(unit => {
+                                unit.count = 0;
+                            });
+                        } 
+                        return response.json()
+                    })
+                    .then((data) => {
+                        tokens = data.tokens;
+                        units = tokens.filter(unit => { return unit.policy === this.policyId});
+
+                        console.log('Units loaded: ' + units.length);
+
+                        all_items = [];
+                        units.forEach(unit => {
+                            items = unit.metadata.contents.map( item => item.name)
+                            for (let i = 0; i< items.length; i++){
+                                all_items.push(items[i]);
+                            }
+                        });
+
+                        var items_histogram = all_items.reduce(function(prev, cur) {
+                            prev[cur] = (prev[cur] || 0) + 1;
+                            return prev;
+                        }, {});
+
+                        for (const item in items_histogram){
+                            objIndex = this.items.findIndex((obj => obj.name == item));
+                            this.items[objIndex].count = items_histogram[item];
+                        }
+                        this.isLoading = false;
+                        this.isError = false;
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            },
+            items: [
+                { 'count': 0, 'id': 1, 'name': 'White shelves', 'rarity': 79.83 },
+                { 'count': 0, 'id': 0, 'name': 'White bed', 'rarity': 79.76 },
+                { 'count': 0, 'id': 2, 'name': 'White bookshelf', 'rarity': 72.56 },
+                { 'count': 0, 'id': 3, 'name': 'Boxes desk', 'rarity': 50.78 },
+                { 'count': 0, 'id': 4, 'name': "Charles's mic", 'rarity': 43.54 },
+                { 'count': 0, 'id': 6, 'name': "Charles's starter pack", 'rarity': 43.43 },
+                { 'count': 0, 'id': 5, 'name': 'Cardano live sign', 'rarity': 43.39 },
+                { 'count': 0, 'id': 7, 'name': 'White desk', 'rarity': 40.49 },
+                { 'count': 0, 'id': 8, 'name': 'White table', 'rarity': 38.7 },
+                { 'count': 0, 'id': 9, 'name': 'Silver hanger', 'rarity': 38.13 },
+                { 'count': 0, 'id': 10, 'name': 'Boxes coffee table', 'rarity': 33.3 },
+                { 'count': 0, 'id': 11, 'name': "Aparna's wine", 'rarity': 32.87 },
+                { 'count': 0, 'id': 22, 'name': 'Buzzin poster', 'rarity': 27.09 },
+                { 'count': 0, 'id': 23, 'name': 'Hash it out poster', 'rarity': 26.91 },
+                { 'count': 0, 'id': 15, 'name': 'Basic office chair', 'rarity': 26.89 },
+                { 'count': 0, 'id': 19, 'name': "Charles's silver roses", 'rarity': 26.86 },
+                { 'count': 0, 'id': 20, 'name': "Charles's atv", 'rarity': 26.85 },
+                { 'count': 0, 'id': 13, 'name': 'Basic right chair', 'rarity': 26.81 },
+                { 'count': 0, 'id': 14, 'name': 'Basic right armchair', 'rarity': 26.76 },
+                { 'count': 0, 'id': 12, 'name': 'Silver bird mask', 'rarity': 26.75 },
+                { 'count': 0, 'id': 18, 'name': 'Shakuhachi flute', 'rarity': 26.73 },
+                { 'count': 0, 'id': 26, 'name': 'Silver floor lamp', 'rarity': 26.73 },
+                { 'count': 0, 'id': 25, 'name': 'Mega bull poster', 'rarity': 26.69 },
+                { 'count': 0, 'id': 17, 'name': "Charles's tractor", 'rarity': 26.64 },
+                { 'count': 0, 'id': 16, 'name': 'Bird gossip statue', 'rarity': 26.63 },
+                { 'count': 0, 'id': 21, 'name': 'Monney girl poster', 'rarity': 26.63 },
+                { 'count': 0, 'id': 24, 'name': 'Silver rocket', 'rarity': 26.59 },
+                { 'count': 0, 'id': 29, 'name': 'Rocket fuel poster', 'rarity': 26.58 },
+                { 'count': 0, 'id': 27, 'name': 'Basic left chair', 'rarity': 26.58 },
+                { 'count': 0, 'id': 28, 'name': "Silver Dan Schaub's mask", 'rarity': 26.37 },
+                { 'count': 0, 'id': 30, 'name': 'Gold hanger', 'rarity': 24.98 },
+                { 'count': 0, 'id': 31, 'name': 'Black table', 'rarity': 24.65 },
+                { 'count': 0, 'id': 32, 'name': 'Little birds poster', 'rarity': 24.01 },
+                { 'count': 0, 'id': 33, 'name': "Dan Friedman's telescope", 'rarity': 23.98 },
+                { 'count': 0, 'id': 34, 'name': "Black Dan Schaub's mask", 'rarity': 22.64 },
+                { 'count': 0, 'id': 38, 'name': 'Mask statue', 'rarity': 22.24 },
+                { 'count': 0, 'id': 36, 'name': "Charles's face mask", 'rarity': 22.17 },
+                { 'count': 0, 'id': 37, 'name': "Charles's gnome", 'rarity': 22.16 },
+                { 'count': 0, 'id': 39, 'name': 'Alpaca statue', 'rarity': 22.15 },
+                { 'count': 0, 'id': 35, 'name': 'Bird statue', 'rarity': 21.98 },
+                { 'count': 0, 'id': 40, 'name': 'Red ball', 'rarity': 20.86 },
+                { 'count': 0, 'id': 41, 'name': 'Premium left armchair', 'rarity': 20.39 },
+                { 'count': 0, 'id': 47, 'name': 'Gold bed', 'rarity':  20.24 },
+                { 'count': 0, 'id': 43, 'name': 'American whiskey', 'rarity': 20.23 },
+                { 'count': 0, 'id': 42, 'name': 'Gold shelves', 'rarity': 20.17 },
+                { 'count': 0, 'id': 44, 'name': "Charles's leather jacket", 'rarity': 20.02 },
+                { 'count': 0, 'id': 45, 'name': 'Go game', 'rarity': 20.02 },
+                { 'count': 0, 'id': 46, 'name': 'Cigarettes', 'rarity': 19.96 },
+                { 'count': 0, 'id': 48, 'name': "Charles's hat", 'rarity': 19.75 },
+                { 'count': 0, 'id': 49, 'name': 'Silver coffee table', 'rarity': 18.2 },
+                { 'count': 0, 'id': 54, 'name': 'Vital lick poster', 'rarity': 17.16 },
+                { 'count': 0, 'id': 60, 'name': "Charles's kachina doll", 'rarity': 17.14 },
+                { 'count': 0, 'id': 58, 'name': 'Molten tar monster poster', 'rarity': 17.13 },
+                { 'count': 0, 'id': 57, 'name': "Charles's lambo", 'rarity': 17.07 },
+                { 'count': 0, 'id': 53, 'name': 'The spark poster', 'rarity': 17.05 },
+                { 'count': 0, 'id': 50, 'name': 'Pool boss poster', 'rarity': 17.0 },
+                { 'count': 0, 'id': 52, 'name': 'Premium office chair', 'rarity': 16.98 },
+                { 'count': 0, 'id': 63, 'name': 'Premium right chair', 'rarity': 16.97 },
+                { 'count': 0, 'id': 62, 'name': 'Saxophone', 'rarity': 16.94 },
+                { 'count': 0, 'id': 59, 'name': 'Cardano rock pi', 'rarity': 16.94 },
+                { 'count': 0, 'id': 64, 'name': 'Gold floor lamp', 'rarity': 16.93 },
+                { 'count': 0, 'id': 61, 'name': "Newton's cradle", 'rarity': 16.93 },
+                { 'count': 0, 'id': 56, 'name': 'Gold rocket', 'rarity': 16.91 },
+                { 'count': 0, 'id': 66, 'name': 'Gold venetian mask', 'rarity': 16.89 },
+                { 'count': 0, 'id': 51, 'name': "Charles's PC", 'rarity': 16.89 },
+                { 'count': 0, 'id': 55, 'name': 'Premium left chair', 'rarity': 16.77 },
+                { 'count': 0, 'id': 67, 'name': 'Premium right armchair', 'rarity': 16.76 },
+                { 'count': 0, 'id': 68, 'name': "Gold Dan Schaub's mask", 'rarity': 16.66 },
+                { 'count': 0, 'id': 65, 'name': "The name's byron poster", 'rarity': 16.63 },
+                { 'count': 0, 'id': 69, 'name': "Aparna's armchair", 'rarity': 16.06 },
+                { 'count': 0, 'id': 70, 'name': 'Basic left armchair', 'rarity': 15.38 },
+                { 'count': 0, 'id': 71, 'name': 'Trash can', 'rarity': 15.36 },
+                { 'count': 0, 'id': 72, 'name': 'Wen shelley poster', 'rarity': 15.31 },
+                { 'count': 0, 'id': 73, 'name': 'Wen moon stand', 'rarity': 15.04 },
+                { 'count': 0, 'id': 74, 'name': "Charles's eagle statue", 'rarity': 14.29 },
+                { 'count': 0, 'id': 76, 'name': 'Bison statue', 'rarity': 14.21 },
+                { 'count': 0, 'id': 75, 'name': 'Infinity gauntlet', 'rarity': 14.08 },
+                { 'count': 0, 'id': 77, 'name': "Charles's AR headset", 'rarity': 14.06 },
+                { 'count': 0, 'id': 78, 'name': "Charles's fallen angel statue", 'rarity': 13.98 },
+                { 'count': 0, 'id': 84, 'name': "Charles's cigars", 'rarity': 12.91 },
+                { 'count': 0, 'id': 80, 'name': 'Sals ny pizza', 'rarity': 12.7 },
+                { 'count': 0, 'id': 82, 'name': 'Japanese whiskey', 'rarity': 12.65 },
+                { 'count': 0, 'id': 83, 'name': "Ben Goertzel's hat", 'rarity': 12.64 },
+                { 'count': 0, 'id': 79, 'name': 'Silver careful massacre mask', 'rarity': 12.64 },
+                { 'count': 0, 'id': 81, 'name': "Charles's yukata", 'rarity': 12.53 },
+                { 'count': 0, 'id': 85, 'name': 'Gold coffee table', 'rarity': 11.7 },
+                { 'count': 0, 'id': 86, 'name': 'Cardano wine', 'rarity': 10.39 },
+                { 'count': 0, 'id': 87, 'name': "Charles's safe", 'rarity': 9.76 },
+                { 'count': 0, 'id': 88, 'name': 'Black desk', 'rarity': 8.73 },
+                { 'count': 0, 'id': 89, 'name': 'Gold unicorn trophy', 'rarity': 8.05 },
+                { 'count': 0, 'id': 90, 'name': 'The mighty one poster', 'rarity': 4.38 },
+                { 'count': 0, 'id': 91, 'name': "Charles's painting", 'rarity': 4.3 },
+                { 'count': 0, 'id': 92, 'name': "Charles's billion dollar console", 'rarity': 2.66 },
+                { 'count': 0, 'id': 93, 'name': 'Cardano astronaut', 'rarity': 2.21 },
+                { 'count': 0, 'id': 94, 'name': "Charles's samurai", 'rarity': 0.7 }
+            ]
+        }
+    }
+</script>
