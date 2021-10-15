@@ -66,7 +66,7 @@
 
 
 
-        <div class="flex flex-wrap -mx-2 pb-8">
+        <div class="flex flex-wrap -mx-2 pb-16">
             <template x-for="item in items" :key="item.id">
                 <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 h-full font-light " @click="modal(item.name)">
                     <div
@@ -82,6 +82,38 @@
                 </div>
             </template>
         </div>
+
+        <div class="flex center items-center">
+            <template x-if="calculated">
+                <div class="text-gray-500 font-bold text-sm tracking-widest uppercase">Sequence units</div>
+            </template>
+            <template x-if="!calculated">
+                <button type="submit" @click="calculateSequenceUnits()"
+                    class="flex bg-pink-600 text-white dark:text-dark font-semibold rounded hover:bg-pink-700 ml-2 text-center py-2 px-4 "
+                    :class="[ isCalculating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-pink-700' ]" :disabled="isCalculating">
+                    Calculate Sequence Units
+                </button>
+            </template>
+        </div>
+
+        <div class="flex flex-wrap -mx-2 pb-8 content-center">
+            <template x-for="sequences in all_sequences">
+                <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 pb-4">
+                    <div class="bg-white dark:bg-dark-lighter rounded-lg shadow-md m-2 -mb-2 border-l-8 border-white dark:border-dark-lighter p-4 h-full">
+                        <template x-for="unit in sequences">
+                            <div class="flex justify-between">
+                                <a x-bind:href="unitBaseUrl + unit.name" class = "flex items-center mb-2 font-semibold hover:text-pink-600" x-text = "unit.name" target="_blank"></a>
+                                <div x-text="unit.metadata.base" class="truncate text-gray-500 font-semibold tracking-widest"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+            <template x-if="calculated && all_sequences.length === 0">
+                <div class="pl-2">:(</div>
+            </template>
+        </div>
+        
     </div>
 
     <div class="flex flex-col text-center text-xs text-gray-500">
@@ -106,8 +138,11 @@
             totalValue: 0,
             isLoading: false,
             isError: false,
+            isCalculating: false,
+            calculated: false,
             error: '',
             showModal: false,
+            all_sequences: [],
             modalData: {
                 'title': '',
                 'units': []
@@ -131,7 +166,9 @@
                 localStorage.setItem('dark', html.classList.contains('dark'));
             },
             fetchUnits() {
+                this.all_sequences = [];
                 this.isLoading = true;
+                this.calculated = false;
                 fetch(`https://api.pool.pm/wallet/${this.walletSearch}`)
                     .then(response => {
                         if (!response.ok) {
@@ -196,6 +233,28 @@
                     }).catch(function (err) {
                         console.log(err);
                     });
+
+                    
+            },
+            calculateSequenceUnits(){
+                this.isCalculating = true;
+                let all_sequences = [];
+                for (let i = 0; i < this.numOfUnits; i++){
+                    let temp_seq = [units[i]];
+                    for(let j = i + 1; j < this.numOfUnits; j++){
+                        if (parseInt(units[j].metadata.name.match(/\d+$/)[0], 10) - 1 === parseInt(temp_seq[temp_seq.length-1].metadata.name.match(/\d+$/)[0], 10)){
+                            temp_seq.push(units[j]);
+                            i++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (temp_seq.length >= 2) {
+                        this.all_sequences.push(temp_seq);
+                    }
+                }
+                this.isCalculating = false;
+                this.calculated = true;
             },
             numberWithCommas(x) {
                 return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
