@@ -129,7 +129,7 @@
     function alpineInstance() {
         return {
             title: 'CardanoCity Collector',
-            intro: 'Type the <code class="text-md text-pink-600">address</code> of your Cardano wallet:',
+            intro: 'Type the <code class="text-md text-pink-600">address or $handle</code> of your Cardano wallet:',
             policyId: 'a5425bd7bc4182325188af2340415827a73f845846c165d9e14c5aed',
             walletSearch: localStorage.getItem("address") || '',
             unitBaseUrl: 'https://pool.pm/a5425bd7bc4182325188af2340415827a73f845846c165d9e14c5aed.',
@@ -169,7 +169,7 @@
                 this.all_sequences = [];
                 this.isLoading = true;
                 this.calculated = false;
-                fetch(`https://api.pool.pm/wallet/${this.walletSearch}`)
+                fetch(`https://pool.pm/wallet/${this.walletSearch}`)
                     .then(response => {
                         if (!response.ok) {
                             this.isLoading = false;
