@@ -218,6 +218,8 @@
 
                         });
 
+                        units.sort((a,b) => (a.metadata.name > b.metadata.name) ? 1 : ((b.metadata.name > a.metadata.name) ? -1 : 0));
+
                         var items_histogram = all_items.reduce(function (prev, cur) {
                             prev[cur] = (prev[cur] || 0) + 1;
                             return prev;
